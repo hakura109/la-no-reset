@@ -1,160 +1,165 @@
-# Building Heat Efficiency Analysis
+# Text-based Scalable Deep Generative Modelling
 
-A comprehensive machine learning project analyzing the relationship between building features and heating load using the UCI Energy Efficiency dataset.
+This repository is for a dissertation project on **scalable deep generative modelling for text**.  
+The core aim is to design and evaluate a state-of-the-art generative model that balances:
+- sample quality,
+- diversity,
+- generation speed,
+- and scalability to larger datasets / model sizes.
 
-## Project Overview
+---
 
-This project analyzes 768 buildings with identical internal volume (771.75 m³) but varying geometries. Each building is characterized by 8 features that influence heating load requirements. The analysis includes:
+## 1) Project Description
 
-- Exploratory Data Analysis (EDA)
-- Dimensionality Reduction using Principal Component Analysis (PCA)
-- Predictive Modeling with Linear Regression and Neural Networks
-- Binary Classification with a Hybrid Modeling Strategy
+Deep generative models (Flows, VAEs, AR models, DDPMs, GANs) learn data distributions with different trade-offs in:
+- training and inference cost,
+- mode coverage and diversity,
+- controllability,
+- and architectural constraints.
 
-## Dataset
+This project focuses on **text-based generation**, with two possible directions:
+1. **Theoretical direction**: study objective functions, inductive biases, and symmetry/structure constraints that improve scaling behavior.
+2. **Applied direction**: build a practical model stack inspired by recent ICLR/NeurIPS/ICML work and demonstrate strong results on text datasets.
 
-The dataset is based on the **UCI Energy Efficiency Dataset** and contains:
-- **768 samples** (buildings)
-- **8 features**: Relative Compactness, Surface Area, Wall Area, Roof Area, Overall Height, Orientation, Glazing Area, Glazing Area Distribution
-- **1 target variable**: Heating Load
+---
 
-## Project Structure
+## 2) Literature Review
 
-```
-.
-├── building_heat_efficiency.ipynb    # Main Jupyter notebook with all analyses
-├── data/
-│   └── summative-2425-data.csv      # Dataset
-├── download_data.py                  # Script to download dataset from UCI repository
-└── README.md                         # This file
-```
+### 2.1 Background: Families of Deep Generative Models
 
-## Requirements
+The review paper by Bond-Taylor et al. (2021) provides a unified comparison of:
+- **VAEs**: stable training and fast sampling, but often blurrier generations and ELBO gap limitations.
+- **GANs**: high perceptual fidelity but training instability and mode collapse risks.
+- **Normalizing Flows**: exact likelihood and invertibility, but architectural constraints and memory/computation trade-offs.
+- **Autoregressive (AR) Models**: strong likelihood modelling and text quality, but sequential decoding can be slow.
+- **Energy-Based Models**: flexible formulations, but sampling and training can be expensive.
 
-- Python 3.8+
-- pandas
-- numpy
-- scikit-learn
-- matplotlib
-- seaborn
-- openpyxl (for Excel file handling)
-- jupyter
+**Key implication**: no single family dominates on all axes; practical systems often require hybridization or objective-level innovation.
 
-Install all requirements:
-```bash
-pip install pandas numpy scikit-learn matplotlib seaborn openpyxl jupyter
-```
+### 2.2 Scalability Challenge in Text Generation
 
-## Running the Analysis
+For text generation, scaling bottlenecks are usually caused by:
+- long-context dependence,
+- token-by-token decoding latency,
+- memory growth with model depth/width,
+- and optimization instability at larger batch/model scales.
 
-### Option 1: Using Jupyter Notebook
-```bash
-jupyter notebook building_heat_efficiency.ipynb
-```
+Recent trends suggest that scalability improves when architecture, training objective, and sampling procedure are co-designed (instead of optimizing only one component).
 
-### Option 2: Execute All Cells
-```bash
-jupyter nbconvert --to notebook --execute building_heat_efficiency.ipynb --ExecutePreprocessor.timeout=600
-```
+### 2.3 Diffusion / Flow-Matching Trend
 
-## Tasks Implemented
+Modern diffusion and flow-matching frameworks are increasingly explored for discrete or continuous text representations due to:
+- better controllability of generation trajectory,
+- potential parallelism in denoising steps,
+- and compatibility with distillation / acceleration techniques.
 
-### Task 1: Data Preparation and Standardization
-- Split data into training and test sets (5:1 ratio)
-- Standardize features using StandardScaler
-- Commentary on importance of standardization
+However, they still face efficiency barriers compared with strong autoregressive baselines unless acceleration methods are integrated.
 
-### Task 2: Principal Component Analysis (PCA)
-- Perform PCA on standardized training features
-- Create scree plot showing cumulative explained variance
-- Determine components for 85% variance retention
-- Reduce dimensionality to maximum 5 dimensions
-- Analyze information loss
+### 2.4 Gaps to Address
 
-### Task 3: Linear Regression with PCA
-- Train linear regression models with 1-5 PCA components
-- 5-fold cross-validation for performance estimation
-- Plot MSE vs number of components with error bars
+From the current literature, important open questions remain:
+1. How to retain AR-level quality while improving sampling throughput.
+2. How to evaluate quality-diversity-efficiency jointly rather than with a single metric.
+3. How to make training/inference costs reproducible and comparable across model families.
 
-### Task 4: Neural Network Modeling
-- Systematic experimentation with different architectures:
-  - Varying hidden layers (1-3 layers)
-  - Different neurons per layer (50-150)
-  - Multiple activation functions (ReLU, tanh)
-  - Regularization techniques (L2, early stopping)
-- Cross-validation for hyperparameter selection
-- Performance comparison with linear regression
-- Computational complexity analysis
+This project targets these gaps via a unified benchmark and a scalable model design.
 
-### Task 5: Binary Classification and Hybrid Strategy
-- Categorize buildings into high/low heating load
-- Develop combined modeling strategy:
-  - Linear regression for initial predictions
-  - Neural network for uncertain cases
-  - Uncertainty-based refinement criterion
-- ROC curve analysis for all approaches
-- Performance comparison and practical recommendations
+---
 
-## Key Findings
+## 3) Reference
 
-1. **Standardization is Critical**: Features have vastly different scales (0.62-0.98 for Relative Compactness vs 514-808 for Surface Area), making standardization essential for algorithm performance.
+- Bond-Taylor, S., Leach, A., Long, Y., & Willcocks, C. G. (2021).  
+  **Deep Generative Modelling: A Comparative Review of VAEs, GANs, Normalizing Flows, Energy-Based and Autoregressive Models**.  
+  URL: https://arxiv.org/pdf/2103.04922.pdf
 
-2. **PCA Effectiveness**: 5 principal components retain ~97% of variance, providing excellent dimensionality reduction with minimal information loss.
+---
 
-3. **Non-linear Relationships**: Neural networks outperform linear regression, indicating non-linear relationships between features and heating load.
+## 4) Project Plan
 
-4. **Hybrid Strategy Optimal**: The combined approach achieves near-neural-network accuracy while using it only for 20-40% of uncertain cases, offering the best balance for production deployment.
+## Phase 1 — Scoping & Reading (Week 1-2)
 
-5. **High Classification Accuracy**: All models achieve >95% binary classification accuracy, demonstrating strong predictive power.
+**Goals**
+- Finalize research question and hypothesis for scalable text generation.
+- Build annotated reading list (ICLR/NeurIPS/ICML + core survey papers).
+- Define target benchmark datasets and compute budget.
 
-## Results Summary
+**Deliverables**
+- Problem statement (1 page).
+- Literature matrix (model family × quality × speed × compute).
 
-| Metric | Linear Regression | Neural Network | Combined Strategy |
-|--------|------------------|----------------|-------------------|
-| Test MSE | ~10-15 | ~8-12 | ~9-13 |
-| Binary Accuracy | >95% | >96% | >96% |
-| ROC AUC | >0.95 | >0.97 | >0.96 |
-| Computational Cost | Low | High | Medium |
-| NN Usage | 0% | 100% | 20-40% |
+## Phase 2 — Baseline Reproduction (Week 3-4)
 
-## Model Deployment Recommendations
+**Goals**
+- Reproduce at least two strong baselines (e.g., AR transformer + diffusion/flow baseline).
+- Standardize preprocessing, tokenization, and evaluation pipeline.
 
-### Use Linear Regression When:
-- Real-time applications requiring sub-millisecond inference
-- Edge devices with limited computational resources
-- Interpretability is paramount
-- Slight accuracy loss is acceptable
+**Deliverables**
+- Reproducible training scripts/configs.
+- Baseline table with quality and efficiency metrics.
 
-### Use Neural Network When:
-- Maximum accuracy is critical (regulatory compliance)
-- Batch processing scenarios
-- Cloud-based systems with ample resources
-- Prediction errors have high costs
+## Phase 3 — New Model Design (Week 5-7)
 
-### Use Combined Strategy When:
-- Production systems needing balance of speed and accuracy
-- Applications with variable computational budgets
-- Most predictions are straightforward
-- Cost-effective deployment at scale
+**Goals**
+- Propose scalable architecture/objective (or hybrid inference scheme).
+- Implement training and sampling pipeline with profiling hooks.
 
-## Future Work
+**Deliverables**
+- Model spec and ablation plan.
+- Initial results on a small benchmark split.
 
-- Investigate ensemble methods (Random Forests, Gradient Boosting)
-- Explore deep learning with advanced regularization
-- Analyze feature importance and physical interpretations
-- Extend to multi-target prediction (heating + cooling loads)
-- Deploy in real-world building management systems
+## Phase 4 — Full Experiments & Ablations (Week 8-10)
 
-## References
+**Goals**
+- Run full-scale experiments and ablations.
+- Compare against baselines under matched compute settings.
 
-- **Dataset Source**: UCI Machine Learning Repository - Energy Efficiency Dataset
-- **Paper**: Tsanas, A., & Xifara, A. (2012). Accurate quantitative estimation of energy performance of residential buildings using statistical machine learning tools. *Energy and Buildings*, 49, 560-567.
-- **Dataset URL**: https://archive.ics.uci.edu/dataset/242/energy+efficiency
+**Deliverables**
+- Main results table.
+- Ablation studies (objective, depth/width, sampling steps, distillation/acceleration).
 
-## License
+## Phase 5 — Analysis & Robustness (Week 11)
 
-This project is created for educational purposes as part of a machine learning assignment.
+**Goals**
+- Analyze trade-offs: quality vs diversity vs throughput vs memory.
+- Test robustness across dataset domains and sequence lengths.
 
-## Author
+**Deliverables**
+- Error analysis and failure-case taxonomy.
+- Robustness appendix material.
 
-Developed as part of a comprehensive machine learning course assignment on building energy efficiency analysis.
+## Phase 6 — Writing & Finalization (Week 12)
+
+**Goals**
+- Consolidate methodology, experiments, and discussion.
+- Finalize dissertation narrative and reproducibility checklist.
+
+**Deliverables**
+- Final dissertation draft.
+- Clean code release notes and experiment logs.
+
+---
+
+## 5) Anticipated Outcomes
+
+- A deep generative model that generates **high-quality text samples** efficiently.
+- Clear evidence of scalability improvements (quality-speed-compute trade-off).
+- Reproducible benchmark and ablation framework for future extension.
+
+---
+
+## 6) Requirements / Prerequisites
+
+- Prior completion (or current enrollment) in an advanced deep learning module (e.g., L3 Deep Learning).
+- Equivalent background acceptable (MISCADA route): strong foundations in statistics, calculus, and geometry.
+
+---
+
+## 7) Keywords
+
+- GANs
+- Flow Matching
+- DDPMs
+- Variational Autoencoders
+- Autoregressive Models
+- Text Generation
+- Scalable Deep Learning
